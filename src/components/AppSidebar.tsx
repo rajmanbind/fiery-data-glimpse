@@ -12,15 +12,15 @@ import {
 } from '@/components/ui/sidebar';
 
 interface AppSidebarProps {
-  activeSection: 'users' | 'posts' | 'comments';
-  onSectionChange: (section: 'users' | 'posts' | 'comments') => void;
+  activeSection: 'chefs' | 'users' | 'contactUs';
+  onSectionChange: (section: 'chefs' | 'users' | 'contactUs') => void;
 }
 
 const AppSidebar = ({ activeSection, onSectionChange }: AppSidebarProps) => {
   const menuItems = [
-    { id: 'users', title: 'Users', icon: Users },
-    { id: 'posts', title: 'Posts', icon: FileText },
-    { id: 'comments', title: 'Comments', icon: MessageSquare },
+    { id: 'chefs', title: 'Chefs', icon: Users },
+    { id: 'users', title: 'Users', icon: FileText },
+    { id: 'contactUs', title: 'ContactUs', icon: MessageSquare },
   ];
 
   return (
@@ -33,7 +33,7 @@ const AppSidebar = ({ activeSection, onSectionChange }: AppSidebarProps) => {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
-                    onClick={() => onSectionChange(item.id as 'users' | 'posts' | 'comments')}
+                    onClick={() => onSectionChange(item.id as 'chefs' | 'users' | 'contactUs')}
                     className={`w-full justify-start ${
                       activeSection === item.id 
                         ? 'bg-[#C04E2B15] text-[#C04E2B] font-medium' 
