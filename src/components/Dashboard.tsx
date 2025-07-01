@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -101,54 +100,43 @@ const Dashboard = () => {
     }
 
     return (
-      <div className="flex flex-col h-full">
-        <Card className="bg-white border-2 flex-1 flex flex-col" style={{ borderColor: '#C04E2B' }}>
-          <CardHeader className="flex-shrink-0">
-            <CardTitle style={{ color: '#C04E2B' }}>
-              {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} ({totalItems})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col min-h-0">
-            <ScrollArea className="flex-1 pr-4">
-              <div className="space-y-3">
-                {paginatedData.map((item: any) => (
-                  <div key={item.id} className="p-3 rounded border" style={{ backgroundColor: '#C04E2B15', borderColor: '#C04E2B30' }}>
-                    {activeSection === 'users' && (
-                      <>
-                        <p className="font-medium" style={{ color: '#C04E2B' }}>{item.name}</p>
-                        <p className="text-sm text-gray-600">{item.email}</p>
-                        <p className="text-sm text-gray-500">{item.phone}</p>
-                      </>
-                    )}
-                    {activeSection === 'posts' && (
-                      <>
-                        <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.title}</p>
-                        <p className="text-xs text-gray-600 mt-1">{item.body}</p>
-                      </>
-                    )}
-                    {activeSection === 'comments' && (
-                      <>
-                        <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.name}</p>
-                        <p className="text-xs text-gray-600">{item.email}</p>
-                        <p className="text-xs text-gray-500 mt-1">{item.body}</p>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-            
-            <div className="flex-shrink-0 pt-4">
-              <PaginationComponent
-                currentPage={currentPage}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
-              />
+      <Card className="bg-white border-2 h-full flex flex-col" style={{ borderColor: '#C04E2B' }}>
+        <CardHeader className="flex-shrink-0">
+          <CardTitle style={{ color: '#C04E2B' }}>
+            {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} ({totalItems})
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full pr-4">
+            <div className="space-y-3">
+              {paginatedData.map((item: any) => (
+                <div key={item.id} className="p-3 rounded border" style={{ backgroundColor: '#C04E2B15', borderColor: '#C04E2B30' }}>
+                  {activeSection === 'users' && (
+                    <>
+                      <p className="font-medium" style={{ color: '#C04E2B' }}>{item.name}</p>
+                      <p className="text-sm text-gray-600">{item.email}</p>
+                      <p className="text-sm text-gray-500">{item.phone}</p>
+                    </>
+                  )}
+                  {activeSection === 'posts' && (
+                    <>
+                      <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.title}</p>
+                      <p className="text-xs text-gray-600 mt-1">{item.body}</p>
+                    </>
+                  )}
+                  {activeSection === 'comments' && (
+                    <>
+                      <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.name}</p>
+                      <p className="text-xs text-gray-600">{item.email}</p>
+                      <p className="text-xs text-gray-500 mt-1">{item.body}</p>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
     );
   };
 
@@ -160,9 +148,19 @@ const Dashboard = () => {
           <div className="fixed top-0 right-0 left-60 z-10">
             <Header />
           </div>
-          <div className="flex-1 pt-16 p-6 min-h-0">
+          <div className="flex-1 pt-16 pb-20 p-6 overflow-hidden">
             <div className="max-w-4xl mx-auto h-full">
               {renderDataCard()}
+            </div>
+          </div>
+          <div className="fixed bottom-0 right-0 left-60 z-10 bg-white border-t border-gray-200 p-4">
+            <div className="max-w-4xl mx-auto">
+              <PaginationComponent
+                currentPage={currentPage}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
         </SidebarInset>
