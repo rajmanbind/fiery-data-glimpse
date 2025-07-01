@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import AppSidebar from './AppSidebar';
 import Header from './Header';
 import PaginationComponent from './PaginationComponent';
@@ -100,48 +101,54 @@ const Dashboard = () => {
     }
 
     return (
-      <Card className="bg-white border-2" style={{ borderColor: '#C04E2B' }}>
-        <CardHeader>
-          <CardTitle style={{ color: '#C04E2B' }}>
-            {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} ({totalItems})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {paginatedData.map((item: any) => (
-              <div key={item.id} className="p-3 rounded border" style={{ backgroundColor: '#C04E2B15', borderColor: '#C04E2B30' }}>
-                {activeSection === 'users' && (
-                  <>
-                    <p className="font-medium" style={{ color: '#C04E2B' }}>{item.name}</p>
-                    <p className="text-sm text-gray-600">{item.email}</p>
-                    <p className="text-sm text-gray-500">{item.phone}</p>
-                  </>
-                )}
-                {activeSection === 'posts' && (
-                  <>
-                    <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.title}</p>
-                    <p className="text-xs text-gray-600 mt-1">{item.body}</p>
-                  </>
-                )}
-                {activeSection === 'comments' && (
-                  <>
-                    <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.name}</p>
-                    <p className="text-xs text-gray-600">{item.email}</p>
-                    <p className="text-xs text-gray-500 mt-1">{item.body}</p>
-                  </>
-                )}
+      <div className="flex flex-col h-full">
+        <Card className="bg-white border-2 flex-1 flex flex-col" style={{ borderColor: '#C04E2B' }}>
+          <CardHeader className="flex-shrink-0">
+            <CardTitle style={{ color: '#C04E2B' }}>
+              {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} ({totalItems})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col min-h-0">
+            <ScrollArea className="flex-1 pr-4">
+              <div className="space-y-3">
+                {paginatedData.map((item: any) => (
+                  <div key={item.id} className="p-3 rounded border" style={{ backgroundColor: '#C04E2B15', borderColor: '#C04E2B30' }}>
+                    {activeSection === 'users' && (
+                      <>
+                        <p className="font-medium" style={{ color: '#C04E2B' }}>{item.name}</p>
+                        <p className="text-sm text-gray-600">{item.email}</p>
+                        <p className="text-sm text-gray-500">{item.phone}</p>
+                      </>
+                    )}
+                    {activeSection === 'posts' && (
+                      <>
+                        <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.title}</p>
+                        <p className="text-xs text-gray-600 mt-1">{item.body}</p>
+                      </>
+                    )}
+                    {activeSection === 'comments' && (
+                      <>
+                        <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.name}</p>
+                        <p className="text-xs text-gray-600">{item.email}</p>
+                        <p className="text-xs text-gray-500 mt-1">{item.body}</p>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          
-          <PaginationComponent
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
-        </CardContent>
-      </Card>
+            </ScrollArea>
+            
+            <div className="flex-shrink-0 pt-4">
+              <PaginationComponent
+                currentPage={currentPage}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   };
 
@@ -149,10 +156,12 @@ const Dashboard = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar activeSection={activeSection} onSectionChange={handleSectionChange} />
-        <SidebarInset className="flex-1">
-          <Header />
-          <div className="p-6">
-            <div className="max-w-4xl mx-auto">
+        <SidebarInset className="flex-1 flex flex-col">
+          <div className="fixed top-0 right-0 left-60 z-10">
+            <Header />
+          </div>
+          <div className="flex-1 pt-16 p-6 min-h-0">
+            <div className="max-w-4xl mx-auto h-full">
               {renderDataCard()}
             </div>
           </div>
