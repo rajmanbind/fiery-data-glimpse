@@ -1,7 +1,12 @@
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import AppSidebar from './AppSidebar';
+import Header from './Header';
+import PaginationComponent from './PaginationComponent';
 
 // Mock API functions - replace these with your actual API endpoints
 const fetchUsersData = async () => {
@@ -20,6 +25,10 @@ const fetchCommentsData = async () => {
 };
 
 const Dashboard = () => {
+  const [activeSection, setActiveSection] = useState<'users' | 'posts' | 'comments'>('users');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const { data: users, isLoading: usersLoading, error: usersError } = useQuery({
     queryKey: ['users'],
     queryFn: fetchUsersData,
@@ -34,6 +43,30 @@ const Dashboard = () => {
     queryKey: ['comments'],
     queryFn: fetchCommentsData,
   });
+
+  const handleSectionChange = (section: 'users' | 'posts' | 'comments') => {
+    setActiveSection(section);
+    setCurrentPage(1);
+  };
+
+  const getCurrentData = () => {
+    switch (activeSection) {
+      case 'users':
+        return { data: users, loading: usersLoading, error: usersError };
+      case 'posts':
+        return { data: posts, loading: postsLoading, error: postsError };
+      case 'comments':
+        return { data: comments, loading: commentsLoading, error: commentsError };
+      default:
+        return { data: [], loading: false, error: null };
+    }
+  };
+
+  const { data, loading, error } = getCurrentData();
+  const totalItems = data?.length || 0;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = data?.slice(startIndex, endIndex) || [];
 
   const LoadingCard = ({ title }: { title: string }) => (
     <Card className="bg-white border-2" style={{ borderColor: '#C04E2B' }}>
@@ -57,86 +90,75 @@ const Dashboard = () => {
     </Card>
   );
 
+  const renderDataCard = () => {
+    if (loading) {
+      return <LoadingCard title={activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} />;
+    }
+
+    if (error) {
+      return <ErrorCard title={activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} error={error} />;
+    }
+
+    return (
+      <Card className="bg-white border-2" style={{ borderColor: '#C04E2B' }}>
+        <CardHeader>
+          <CardTitle style={{ color: '#C04E2B' }}>
+            {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} ({totalItems})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {paginatedData.map((item: any) => (
+              <div key={item.id} className="p-3 rounded border" style={{ backgroundColor: '#C04E2B15', borderColor: '#C04E2B30' }}>
+                {activeSection === 'users' && (
+                  <>
+                    <p className="font-medium" style={{ color: '#C04E2B' }}>{item.name}</p>
+                    <p className="text-sm text-gray-600">{item.email}</p>
+                    <p className="text-sm text-gray-500">{item.phone}</p>
+                  </>
+                )}
+                {activeSection === 'posts' && (
+                  <>
+                    <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.title}</p>
+                    <p className="text-xs text-gray-600 mt-1">{item.body}</p>
+                  </>
+                )}
+                {activeSection === 'comments' && (
+                  <>
+                    <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{item.name}</p>
+                    <p className="text-xs text-gray-600">{item.email}</p>
+                    <p className="text-xs text-gray-500 mt-1">{item.body}</p>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          <PaginationComponent
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-white p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center" style={{ color: '#C04E2B' }}>
-          Dashboard
-        </h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Users Card */}
-          {usersLoading ? (
-            <LoadingCard title="Users" />
-          ) : usersError ? (
-            <ErrorCard title="Users" error={usersError} />
-          ) : (
-            <Card className="bg-white border-2" style={{ borderColor: '#C04E2B' }}>
-              <CardHeader>
-                <CardTitle style={{ color: '#C04E2B' }}>Users ({users?.length || 0})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {users?.slice(0, 5).map((user: any) => (
-                    <div key={user.id} className="p-2 rounded" style={{ backgroundColor: '#C04E2B15' }}>
-                      <p className="font-medium" style={{ color: '#C04E2B' }}>{user.name}</p>
-                      <p className="text-sm text-gray-600">{user.email}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Posts Card */}
-          {postsLoading ? (
-            <LoadingCard title="Posts" />
-          ) : postsError ? (
-            <ErrorCard title="Posts" error={postsError} />
-          ) : (
-            <Card className="bg-white border-2" style={{ borderColor: '#C04E2B' }}>
-              <CardHeader>
-                <CardTitle style={{ color: '#C04E2B' }}>Posts ({posts?.length || 0})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {posts?.slice(0, 5).map((post: any) => (
-                    <div key={post.id} className="p-2 rounded" style={{ backgroundColor: '#C04E2B15' }}>
-                      <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{post.title}</p>
-                      <p className="text-xs text-gray-600 truncate">{post.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Comments Card */}
-          {commentsLoading ? (
-            <LoadingCard title="Comments" />
-          ) : commentsError ? (
-            <ErrorCard title="Comments" error={commentsError} />
-          ) : (
-            <Card className="bg-white border-2" style={{ borderColor: '#C04E2B' }}>
-              <CardHeader>
-                <CardTitle style={{ color: '#C04E2B' }}>Comments ({comments?.length || 0})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {comments?.slice(0, 5).map((comment: any) => (
-                    <div key={comment.id} className="p-2 rounded" style={{ backgroundColor: '#C04E2B15' }}>
-                      <p className="font-medium text-sm" style={{ color: '#C04E2B' }}>{comment.name}</p>
-                      <p className="text-xs text-gray-600">{comment.email}</p>
-                      <p className="text-xs text-gray-500 truncate">{comment.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar activeSection={activeSection} onSectionChange={handleSectionChange} />
+        <SidebarInset className="flex-1">
+          <Header />
+          <div className="p-6">
+            <div className="max-w-4xl mx-auto">
+              {renderDataCard()}
+            </div>
+          </div>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
