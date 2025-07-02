@@ -104,6 +104,42 @@ All colors MUST be HSL.
   }
 }
 
+/* Hide scrollbar globally */
+body::-webkit-scrollbar {
+  display: none;
+}
+body {
+  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;    /* Firefox */
+  overflow: hidden;         /* Prevent scroll globally */
+}
+
+
+
+.scroll-container {
+  overflow-y: auto;
+}
+/* Chrome, Safari, Edge */
+.scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: #C04E2B; /* Tailwind blue-500 with opacity */
+  border-radius: 4px;
+}
+
+/* Firefox */
+.scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: #C04E2B transparent;
+}
+
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

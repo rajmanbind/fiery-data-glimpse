@@ -8,18 +8,28 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
+
 interface PaginationComponentProps {
   currentPage: number;
   totalItems: number;
   itemsPerPage: number;
+  isMobile: boolean;
+  open: boolean;
+  openMobile: boolean;
+
   onPageChange: (page: number) => void;
+  
 }
 
 const PaginationComponent = ({ 
   currentPage, 
   totalItems, 
   itemsPerPage, 
-  onPageChange 
+  onPageChange ,
+   isMobile,
+   open,
+   openMobile 
+
 }: PaginationComponentProps) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   
@@ -42,9 +52,17 @@ const PaginationComponent = ({
     
     return pages;
   };
+console.log( currentPage, 
+  totalItems, 
+  itemsPerPage, )
+
 
   return (
-    <Pagination className="mt-6">
+       <div className={`fixed bottom-0 right-0 z-10 bg-white border-t border-gray-200 p-4 ${
+        (isMobile || !open )? "left-0" : "left-60"
+      }`}>
+    <div className="max-w-4xl mx-auto">
+    <Pagination className="">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious 
@@ -78,6 +96,7 @@ const PaginationComponent = ({
         </PaginationItem>
       </PaginationContent>
     </Pagination>
+    </div></div>
   );
 };
 

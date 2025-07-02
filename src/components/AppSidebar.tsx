@@ -1,5 +1,5 @@
 
-import { Users, FileText, MessageSquare } from 'lucide-react';
+import { Users, ChefHat, MessageSquare } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 
 interface AppSidebarProps {
@@ -18,11 +19,11 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ activeSection, onSectionChange }: AppSidebarProps) => {
   const menuItems = [
-    { id: 'chefs', title: 'Chefs', icon: Users },
-    { id: 'users', title: 'Users', icon: FileText },
+    { id: 'chefs', title: 'Chefs', icon: ChefHat },
+    { id: 'users', title: 'Users', icon: Users },
     { id: 'contactUs', title: 'ContactUs', icon: MessageSquare },
   ];
-
+const { isMobile,open,openMobile,setOpenMobile } = useSidebar();
   return (
     <Sidebar className="w-60">
       <SidebarContent>
@@ -33,10 +34,10 @@ const AppSidebar = ({ activeSection, onSectionChange }: AppSidebarProps) => {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
-                    onClick={() => onSectionChange(item.id as 'chefs' | 'users' | 'contactUs')}
+                    onClick={() => {onSectionChange(item.id as 'chefs' | 'users' | 'contactUs');setOpenMobile(!open)}}
                     className={`w-full justify-start ${
                       activeSection === item.id 
-                        ? 'bg-[#C04E2B15] text-[#C04E2B] font-medium' 
+                        ? 'bg-[#C04E2B15] text-[#C04E2B] hover:text-[#C04E2B] font-medium' 
                         : 'hover:bg-[#C04E2B10]'
                     }`}
                   >
