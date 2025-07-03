@@ -1,24 +1,37 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUpDown, Loader2, Search } from 'lucide-react';
-import { SidebarProvider, SidebarInset, useSidebar } from '@/components/ui/sidebar';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Loader2, Search } from 'lucide-react';
+import { SidebarInset, useSidebar } from '@/components/ui/sidebar';
 import AppSidebar from './AppSidebar';
 import Header from './Header';
 import PaginationComponent from './PaginationComponent';
 import { supabase } from '@/supabase';
 import { useClickOutside } from '@/hooks/useClickOutSide';
 
+interface ChefCookContactType {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  zipCode: string;
+  cuisine: string[];
+  created_at: string | Date;
+  // Additional properties for users section
+  dietary?: string[];
+  // Additional properties for contactUs section
+  subject?: string;
+  message?: string;
+}
+
+
+
 const fetchChefsData = async () => {
   const { data, error } = await supabase.from("become-chef").select("*");
   return data;
 };
 
-// let { data: become-chef, error } = await supabase
-//   .from('become-chef')
-//   .select('*')
-//   .range(0, 9)
 
 const fetchUsersData = async () => {
   const { data, error } = await supabase.from("eat-food").select("*");
@@ -253,11 +266,77 @@ const LoadingCard = ({ title }: { title: string }) => (
       </CardContent>
     </Card>
   );
-const formatRelativeTime = (dateString: string | Date): string => {
+// const formatRelativeTime = (dateString: string | Date): string => {
+//   // Handle both string and Date inputs
+//   const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  
+//   // Handle invalid dates
+//   if (isNaN(date.getTime())) {
+//     return 'unknown time';
+//   }
+
+//   const now = new Date();
+//   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+//   // Time intervals in seconds
+//   const intervals = {
+//     year: 31536000,
+//     month: 2592000,
+//     week: 604800,
+//     day: 86400,
+//     hour: 3600,
+//     minute: 60,
+//     second: 1
+//   };
+
+//   // Find the largest unit that fits
+//   for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+//     const interval = Math.floor(seconds / secondsInUnit);
+//     if (interval >= 1) {
+//       return interval === 1 ? `${interval} ${unit} ago` : `${interval} ${unit}s ago`;
+//     }
+//   }
+
+//   // For future dates or just now
+//   if (seconds < 0) {
+//     return 'in the future';
+//   }
+//   return 'just now';
+// };
+  
+const formatDateTime = (dateString: string | Date): string => {
   // Handle both string and Date inputs
   const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
   
   // Handle invalid dates
+  if (isNaN(date.getTime())) {
+    return 'Invalid date';
+  }
+
+  // Format time (06:08 PM)
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  };
+  const formattedTime = date.toLocaleTimeString('en-US', timeOptions);
+
+  // Format date (20/09/2001)
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  };
+  const formattedDate = date.toLocaleDateString('en-GB', dateOptions);
+
+  // Return combined format
+  return `${formattedTime} ${formattedDate}`;
+};
+
+const formatRelativeTime = (dateString: string | Date): string => {
+  const formattedDateTime = formatDateTime(dateString);
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  
   if (isNaN(date.getTime())) {
     return 'unknown time';
   }
@@ -265,7 +344,6 @@ const formatRelativeTime = (dateString: string | Date): string => {
   const now = new Date();
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
   
-  // Time intervals in seconds
   const intervals = {
     year: 31536000,
     month: 2592000,
@@ -276,21 +354,20 @@ const formatRelativeTime = (dateString: string | Date): string => {
     second: 1
   };
 
-  // Find the largest unit that fits
   for (const [unit, secondsInUnit] of Object.entries(intervals)) {
     const interval = Math.floor(seconds / secondsInUnit);
     if (interval >= 1) {
-      return interval === 1 ? `${interval} ${unit} ago` : `${interval} ${unit}s ago`;
+      return `${formattedDateTime} (${interval === 1 ? `${interval} ${unit} ago` : `${interval} ${unit}s ago`})`;
     }
   }
 
-  // For future dates or just now
   if (seconds < 0) {
-    return 'in the future';
+    return `${formattedDateTime} (in the future)`;
   }
-  return 'just now';
+  return `${formattedDateTime} (just now)`;
 };
-  const renderDataCard = () => {
+
+const renderDataCard = () => {
     if (loading) {
       return (
         <LoadingCard
@@ -322,7 +399,7 @@ const formatRelativeTime = (dateString: string | Date): string => {
         </CardHeader>
         <CardContent className=''>
           <div className="space-y-3">
-            {paginatedData.map((item: any) => (
+            {paginatedData.map((item: ChefCookContactType) => (
               <div
                 key={item.id}
                 className="p-3 rounded border overflow-hidden break-words"
